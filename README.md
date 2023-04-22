@@ -1,4 +1,4 @@
-# sc1015-mini-project
+# sc1015-flight-delay-project [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/raghav-n/sc1015-flight-delay-project/main)
 A project driven by machine learning to predict flight delays in the US. 
 
 > Our team's members are Kapoor Arunaksh (U2222828L), Jodius Low (U2221134H), and Raghav Narayanswamy (U2222228G).
