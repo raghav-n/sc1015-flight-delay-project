@@ -16,7 +16,7 @@ We used two datasets to address our problem: one with the main flight data, whic
 ## Notebooks: walkthrough
 The key points of the machine learning process, including data preparation, cleaning, EDA, and the final machine learning models, for both regression and classification, are detailed below.
 
-### 1.	Preprocessing flight data ([process_flights.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/process_flights.ipynb "process_flights.ipynb"))
+### 1.	Preprocessing flight data ([process_flights.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/process_flights.ipynb "process_flights.ipynb"))
 We apply the following steps to cut down the data involved, which is over 5 million rows if we consider all data from 2009 to 2018:
 - We only consider data from 2017 and 2018.
 - We filter to the top 10 busiest airports over the period 2017–2018.
@@ -25,17 +25,17 @@ We apply the following steps to cut down the data involved, which is over 5 mill
 
 Note that we also remove cancelled and diverted flights as the response variable is unavailable for prediction.
 
-### 2.	Preprocessing weather data ([process_weather.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/process_weather.ipynb "process_weather.ipynb"))
+### 2.	Preprocessing weather data ([process_weather.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/process_weather.ipynb "process_weather.ipynb"))
 The weather data is not as clean as the flight data, and there is a lot of missing data, as well as wide variance across airports in the way in which data is reported. We apply the following steps to prepare the data for merging with the flight data and the machine learning phase.
 - The airport callsigns are provided in ICAO, rather than IATA, codes. Some of them are also blank. So we use another column, `STATION`, which is never blank, to map each row to the correct codes for merging with the flight dataset, which has airports labeled with IATA representation.
 - Based on the [official documentation](https://www.ncei.noaa.gov/data/global-hourly/doc/isd-format-document.pdf "official documentation") for the dataset, we identify the key features to extract for our usage. These are: wind speed, cloud ceiling height, visibility, temperature, dew point, air pressure, precipitation, and snow depth. Snow depth is only available for 200 out of 60,000 individual flights, so we are unable to use it – it is unclear whether some airports just don't report it, or whether it's always zero if unreported.
 - For each of these features, multiple bits of info are presented within each column/cell, separated by commas. Generally, these are focused on quality control, and relate to the quality of data presented. We split the data accordingly, remove the data quality measures and keep only the raw data. 
 - Further processing is still sometimes required; for example, for the precipitation, different airports report the cumulative precipitation over different time periods (i.e. 1, 3, or even 6 hours), so we need to divide the cumulative precipitation by the reporting time period to somewhat standardize the data.
 
-### 3.	Merging flight and weather data ([merge.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/merge.ipynb "merge.ipynb"))
+### 3.	Merging flight and weather data ([merge.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/merge.ipynb "merge.ipynb"))
 The weather and flight data is not aligned perfectly, of course. We observe that based on the documentation, the gap between individual weather observations is one hour (although recordings may not necessarily be at the top of the hour). We therefore round both the weather and flight timings (for both departure and arrival) down to the hour and merge the datasets using the `pd.merge` function. We then use interpolation to fill in the missing data points – even within observations (rows of the weather data), certain information may be missing from the raw dataset.
 
-### 4.	Exploratory data analysis ([eda.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/eda.ipynb "eda.ipynb"))
+### 4.	Exploratory data analysis ([eda.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/eda.ipynb "eda.ipynb"))
 > Note: this file includes detailed visualizations for departure delay, even though our eventual focus was on arrival delay. The file is also quite large, with many different interactive plots, so it will take a while to load and may be slow at times.
 
 The exploratory data analysis revealed some key points about the dataset we are looking at:
@@ -44,9 +44,9 @@ The exploratory data analysis revealed some key points about the dataset we are 
 - As expected, there is a strong relationship between departure delay and arrival delay.
 - Different months have quite a large difference in the proportion of flights delayed, ranging from 13% in November to 25% in June and July.
 - Different times of the day also have a large difference in the proportion of flights delayed, from just 6% for flights departing between 5 and 7 AM, but nearly 30% for flights departing from 8 PM – 9 PM.
-- There are other differences between departure/arrival airports and airlines. These are illustrated in the [eda.ipynb notebook](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/eda.ipynb "eda.ipynb notebook").
+- There are other differences between departure/arrival airports and airlines. These are illustrated in the [eda.ipynb notebook](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/eda.ipynb "eda.ipynb notebook").
 
-### 5.	Machine learning: regression ([ml_regr.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/ml_regr.ipynb "ml_regr.ipynb"))
+### 5.	Machine learning: regression ([ml_regr.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/ml_regr.ipynb "ml_regr.ipynb"))
 > Note: further preprocessing of flight data (beyond that from `process_flights.ipynb`) is included in this file, as well as in `ml_class.ipynb`, including scaling (with RobustScaler, the best scaling method as many of the input features are highly skewed) and one-hot encoding for categorical variables: origin, destination, and airline.
 
 Here, we apply several regression models to address the subquestion on predicting arrival delay in minutes.
@@ -56,10 +56,10 @@ Here, we apply several regression models to address the subquestion on predictin
 - The first two feature selections rely on the `sklearn.inspection.permutation_importance` function, which randomly shuffles out the input features, and scores feature importance based on how much their removal impacts the quality of the model. We use this function to produce two different feature sets, one with features that have importance at least 3 standard deviations above the mean (which we call `permutation_small`) and one with features which have importance at least 2 standard deviations above the mean (which we call `permutation_big`). 
 - The third feature selection uses `sklearn.feature_selection.SelectFromModel` to pick the important features based on an `ExtraTreesClassifier` model.
 - Each model is run four times: once with all the features, and once for each of the three feature selection sets. We record the results for $R^2$, median absolute error, and mean absolute error for subsequent comparison. Each of these is also recomputed in an 'adjusted' form, which treats negative predictions and negative actual values as zeroes. In other words, for a flight which is not delayed, a prediction of -20 (20 minutes early) would be considered perfect, just as a prediction of -10 would be. These same metrics are also computed for the baseline, which is discussed above.
-- We graph the residual plot as well as the predicted vs. actual plot each time. The [ml_regr.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/ml_regr.ipynb "ml_regr.ipynb") notebook only contains some of these plots, the `regr-plots` folder above contains the rest.
+- We graph the residual plot as well as the predicted vs. actual plot each time. The [ml_regr.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/ml_regr.ipynb "ml_regr.ipynb") notebook only contains some of these plots, the `regr-plots` folder above contains the rest.
 - We apply the following models with the above process: Linear Regression (`LinearRegression`), Huber Regressor (`HuberRegressor`), Linear Support Vector Regression (`LinearSVR`), K-Neighbors Regressor (`KNNRegressor`), Decision Tree Regressor (`DecisionTreeRegressor`), Random Forest Regressor (`RandomForestRegressor`), Gradient Boosting Regressor (`GradientBoostingRegressor`), Multi-Layer Perceptron Regressor (`MLPRegressor`), Stochastic Gradient Descent Regressor (`SGDRegressor`).
 
-### 6.	Machine learning: classification ([ml_class.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/ml_class.ipynb "ml_class.ipynb"))
+### 6.	Machine learning: classification ([ml_class.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flighe-delay-project/blob/main/ml_class.ipynb "ml_class.ipynb"))
 
 Here, we apply several classification models to address the subquestion on predicting whether a flight will be late to arrive.
 - The baseline case is that `ARR_DELAYED = DEP_DELAYED`. If a flight is late to depart, the baseline prediction for is that it will be late to arrive at its destination as well.
@@ -67,10 +67,10 @@ Here, we apply several classification models to address the subquestion on predi
 - SMOTE ENN over/undersampling generally resulted in significantly lower model accuracy when compared to random undersampling. Also, since our dataset is relatively large (over 50,000 rows), it may be unnecessary to use the SMOTE ENN method, which might be more preferable for smaller datasets as it preserves a larger number of rows.
 - Applying the same feature selection sets from the most accurate regression models (`LinearRegression` with `permutation_small` and `LinearSVR` with `permutation_big`), we used several classification models to predict whether flights will be delayed.
 - The evaluation metrics we record for each model run are Recall and F1-score for the non-delayed, as well as the delayed class, classification accuracy, and the area under the Receiver Operating Characteristic (ROC) curve. The same metrics (except the area under the ROC curve) are computed for the baseline case as well. 
-- We also plot the labeled confusion matrix and the ROC curve for each model. The [ml_class.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/ml_class.ipynb "ml_class.ipynb") notebook only contains some of these plots, the `class-plots` folder above contains the rest. 
+- We also plot the labeled confusion matrix and the ROC curve for each model. The [ml_class.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/ml_class.ipynb "ml_class.ipynb") notebook only contains some of these plots, the `class-plots` folder above contains the rest. 
 - We apply the following models with the above process: Logistic Regression Classifier (`LogisticRegression`), Decision Tree Classifier (`DecisionTreeClassifier`), Random Forest Classifier (`RandomForestClassifier`), Gradient Boosting Classifier (`GradientBoostingClassifier`), and Multi-Layer Perceptron Classifier (`MLPClassifier`).
 
-### 7.	Machine learning: model evaluation ([eval.ipynb](https://nbviewer.org/github/raghav-n/sc1015-mini-project/blob/main/eval.ipynb "eval.ipynb"))
+### 7.	Machine learning: model evaluation ([eval.ipynb](https://nbviewer.org/github/raghav-n/sc1015-flight-delay-project/blob/main/eval.ipynb "eval.ipynb"))
 As mentioned earlier, we need to compare the models to the baseline prediction, for both classification and regression.
 - For the regression case, two models, the `LinearRegression` and `LinearSVR` performed more or less similarly. This is unsurprising because their implementation is rather similar, but `LinearSVR` additionally imposes a cost on the size of the coefficients. We found `C = 0.5` and `loss = squared_epsilon_insensitive` to be the optimal values of the hyperparameters in the `LinearSVR` model. 
 - Nearly all models outperformed the baseline; the best were `LinearRegression` and `LinearSVR`. Other models which also performed quite well include the `GradientBoostingRegressor` and `SGDRegressor`. The table below shows results for a selection of the most accurate regression models.
