@@ -111,7 +111,9 @@ Looking at our `LinearRegression` model coefficients, we can make a few conclusi
 - Taxi-out time
 - Average delay for this flight, over the previous 4 days
 
-We also observe that certain airports and airlines are associated with more or less delay based on the coefficients of the model. For example, the `ORIGIN_ATL` and `OP_CARRIER_WN` variables have positive coefficients, suggesting flights departing from Atlanta, as well as Southwest Airlines flights are linked to higher delays, while the `ORIGIN_SFO` and `OP_CARRIER_9E` variables have negative coefficients, suggesting that flights departing from San Francisco and Endeavor Air flights are linked with lower delays.
+We also observe that certain airports and airlines are associated with more or less delay based on the coefficients of the model. For example, the `ORIGIN_ATL` and `OP_CARRIER_WN` variables have positive coefficients, suggesting flights departing from Atlanta, as well as Southwest Airlines flights are linked to higher delays, while the `ORIGIN_SFO` and `OP_CARRIER_9E` variables have negative coefficients, suggesting that flights departing from San Francisco and Endeavor Air flights are linked with lower delays. 
+
+Of course, several random factors can also affect flight delays. We could improve our model in future by combining some of the models using ensemble methods, tuning the hyperparameters further, or by using more comprehensive weather data, maybe from other sources.
 
 Thanks for reading!
 
